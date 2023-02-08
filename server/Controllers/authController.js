@@ -9,7 +9,7 @@ var transporter = nodemailer.createTransport({
   secure: false, // true for 465, false for other ports
   auth: {
     user: "themohdhasnain@gmail.com",
-    pass: "zwgtavpbyjnyykrd",
+    pass: process.env.Password,
   },
 });
 
@@ -73,4 +73,25 @@ export async function resetPassword(req, res) {
   } catch (error) {
     return res.status(401).send({ error });
   }
+}
+
+export async function ChangePassword(req, res) {
+  const { email, oldpassword, newpassword } = req.body;
+
+  let user = await User.findOne({ email });
+
+  if (!user) return res.status(400).send("User doesn't exist!");
+
+  const passwordCompare = await bcrypt.compare(oldpassword, user.password);
+  if (!passwordCompare) {
+    return res.status(400).json({ msg: "Wrong Password!" });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  let securePassword = await bcrypt.hash(newpassword, salt);
+
+  user = { ...user._doc, password: securePassword };
+  await User.findOneAndUpdate({ email }, { $set: user }, { new: true });
+
+  res.json({ msg: "Password Successfully Updated!" });
 }

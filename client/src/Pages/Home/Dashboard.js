@@ -4,10 +4,10 @@ import {
   ClockCircleOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme } from "antd";
+import { Dropdown, Layout, Menu, theme } from "antd";
 import Cookies from "js-cookie";
 import React, { useState } from "react";
-import { Routes, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../Contexts/AuthContext";
 import { useSettingsContext } from "../../Contexts/SettingsContext";
 import Routess from "../../Routes";
@@ -28,8 +28,20 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-
-  console.log(Cookies.get("token"));
+  const items = [
+    {
+      key: "1",
+      label: <Link to={"/profile"} style={{fontSize: "1.05rem"}}>Profile Settings</Link>,
+    },
+    {
+      key: "2",
+      label: <Link to={"/change_password"} style={{fontSize: "1.05rem"}}>Change Password</Link>,
+    },
+    {
+      key: "3",
+      label: <p onClick={Logout} style={{fontSize: "1.05rem"}}>Log out</p>,
+    },
+  ];
 
   return (
     <>
@@ -41,7 +53,7 @@ const Dashboard = () => {
         }}
         className="d-flex align-center justify-between"
       >
-        <div>
+        <div  className="d-flex align-center justify-between">
           {React.createElement(MenuOutlined, {
             className: "trigger",
             style: { fontSize: "1.4rem", marginLeft: "10px", color: "#666" },
@@ -57,7 +69,29 @@ const Dashboard = () => {
         </div>
         <div className="d-flex align-center">
           <p>{user?.email}</p>
-          <Button onClick={Logout} className="ms-3">Log Out</Button>
+
+          <Dropdown
+            menu={{
+              items,
+            }}
+          >
+            <div className="ms-3">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "gainsboro",
+                  height: "45px",
+                  width: "45px",
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                }}
+              >
+                PR
+              </div>
+            </div>
+          </Dropdown>
         </div>
       </Header>
       <Layout className="h-100vh">
@@ -67,18 +101,22 @@ const Dashboard = () => {
             theme="light"
             mode="inline"
             defaultSelectedKeys={["1"]}
+            onClick={(item) => {
+            navigate(item.key);
+          }}
             items={[
               {
-                key: "1",
+                key: "/",
                 icon: (
                   <ClockCircleOutlined
                     style={{ fontSize: "1.2rem", color: "#666" }}
                   />
                 ),
                 label: "TIME TRACKER",
+                
               },
               {
-                key: "2",
+                key: "/calendar",
                 icon: (
                   <CalendarOutlined
                     style={{ fontSize: "1.2rem", color: "#666" }}
@@ -87,7 +125,7 @@ const Dashboard = () => {
                 label: "CALENDAR",
               },
               {
-                key: "3",
+                key: "/random",
                 icon: (
                   <UploadOutlined
                     style={{ fontSize: "1.2rem", color: "#666" }}

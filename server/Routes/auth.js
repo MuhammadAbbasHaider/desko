@@ -7,7 +7,7 @@ import {
   verifyTokenAndAdmin,
 } from "../Middlewares/verifyUser.js";
 import { OAuth2Client } from "google-auth-library";
-import * as controller from "../controllers/appController.js";
+import * as controller from "../controllers/authController.js";
 
 const router = Router();
 const JWT_SECRET = "Thisisasecretkey";
@@ -44,6 +44,7 @@ router.post("/login", async (req, res) => {
   if (!user) {
     return res.json({ msg: "Incorrect Credentails!" });
   }
+
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
     return res.status(400).json({ success, msg: "Invalid credentials!" });
@@ -102,5 +103,9 @@ router.get("/createResetSession", (req, res) =>
 );
 
 router.put("/resetPassword", (req, res) => controller.resetPassword(req, res));
+
+router.put("/changepassword", (req, res) =>
+  controller.ChangePassword(req, res)
+);
 
 export default router;

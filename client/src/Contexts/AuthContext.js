@@ -6,7 +6,10 @@ const AuthContext = createContext();
 
 export default function AuthContextProvider({ children }) {
   const [user, setUser] = useState(
-    Cookies.get("token") ? jwt_decode(Cookies.get("token")) : null
+    Cookies.get("token")
+      ? jwt_decode(Cookies.get("token"))?.user ||
+          jwt_decode(Cookies.get("token"))
+      : null
   );
 
   return (
