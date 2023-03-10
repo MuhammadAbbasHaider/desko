@@ -11,11 +11,15 @@ const ResetPassword = () => {
 
   const onSubmit = async (values) => {
     try {
+      if(values.password === values.cpassword){
       await axios.put("http://localhost:8800/api/auth/resetPassword", {
         email: data.email,
         password: values.password,
       });
       navigate("/login");
+    }else{
+      alert("Password did not match!")
+    }
     } catch (error) {
       console.log(error?.response?.data);
     }
@@ -60,7 +64,29 @@ const ResetPassword = () => {
                 />
               }
               placeholder="New Password"
-              type="number"
+              type="password"
+              className="py-2 px-3"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="cpassword"
+            rules={[
+              {
+                required: true,
+                message: "Enter New Password!",
+              },
+            ]}
+          >
+            <Input
+              prefix={
+                <UserOutlined
+                  className="site-form-item-icon"
+                  style={{ fontSize: "18px" }}
+                />
+              }
+              placeholder="Confirm Password"
+              type="password"
               className="py-2 px-3"
             />
           </Form.Item>

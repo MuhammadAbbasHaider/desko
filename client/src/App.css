@@ -1,0 +1,19 @@
+.ant-modal-footer{
+    display: none !important;
+}
+
+
+.PhoneInput{
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+}
+
+.PhoneInputInput{
+    outline: none;
+    border: none;
+    font-size: 1rem;
+}
+
+.PhoneInputInput::placeholder{
+    color: rgb(207, 206, 206);
+}

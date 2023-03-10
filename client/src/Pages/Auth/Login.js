@@ -7,6 +7,8 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { useEffect } from "react";
 import googleOneTap from "google-one-tap";
+import FacebookLogin from "react-facebook-login";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const options = {
@@ -32,11 +34,9 @@ const Login = () => {
           Cookies.set("token", data.authToken);
           setUser(decoded?.user);
           navigate("/");
-        } else {
-          alert("Something went wrong!");
         }
       } else {
-        alert("Something went wrong!");
+        alert("Invalid Credentails!");
       }
     } catch (err) {
       alert(err?.response.data.msg);
@@ -62,6 +62,22 @@ const Login = () => {
       });
     }
   }, []);
+
+  const handleGoogle = async (response) => {
+    const res = await fetch("http://localhost:8800/api/auth/google-login", {
+      method: "POST",
+      body: JSON.stringify({
+        token: response.credential,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+    setUser(data);
+    Cookies.set("token", response.credential);
+  };
 
   if (user) return <Navigate to="/" />;
 
@@ -159,6 +175,22 @@ const Login = () => {
             Log in
           </Button>
           <p className="my-2">Or</p>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => handleGoogle(credentialResponse)}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+            width={380}
+            size="large"
+          />
+          {/* <FacebookLogin
+            appId="1088597931155576"
+            autoLoad={true}
+            fields="name,email,picture"
+            // onClick={componentClicked}
+            callback={responseFacebook}
+          />
+          , */}
         </Form.Item>
       </Form>
     </div>

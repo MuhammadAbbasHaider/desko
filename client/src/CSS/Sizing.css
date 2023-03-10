@@ -41,6 +41,10 @@
   width: 30%;
 }
 
+.Register .login-form {
+  width: 50%;
+}
+
 @media(max-width: 1023px){
   .login-form{
     width: 45%;

@@ -17,7 +17,10 @@ const client = new OAuth2Client(
 
 // Register
 router.post("/register", async (req, res) => {
-  const { email, password } = req.body;
+  if (!req.app.locals.resetSession)
+    return res.status(440).json({ error: "Session expired!" });
+
+  const { email, password, phone, fname, lname } = req.body;
 
   try {
     const exist = await User.findOne({ email });
@@ -28,9 +31,30 @@ router.post("/register", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     let securePassword = await bcrypt.hash(password, salt);
-    await User.create({ email, password: securePassword });
+
+    const user = new User({
+      email,
+      password: securePassword,
+      phone,
+      lname,
+      fname,
+    });
+
+    await user.save();
+    req.app.locals.resetSession = false;
+
+    const data = {
+      user: {
+        email: email,
+        id: user.id,
+        isAdmin: user.isAdmin,
+      },
+    };
+
+    const authToken = jwt.sign(data, JWT_SECRET);
     success = true;
-    res.json({ success, msg: "Successfully registered!" });
+
+    res.json({ success, msg: "Successfull!", authToken });
   } catch (err) {
     console.log(err);
   }
@@ -42,7 +66,7 @@ router.post("/login", async (req, res) => {
   const user = await User.findOne({ email });
   let success = false;
   if (!user) {
-    return res.json({ msg: "Incorrect Credentails!" });
+    return res.status(500).json({ msg: "No Account on this email!" });
   }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
@@ -94,6 +118,10 @@ router.post("/google-login", async (req, res) => {
 // OTP Generate
 router.get("/generateotp", localVariables, async (req, res) =>
   controller.generateOTP(req, res)
+);
+
+router.get("/registerotp", localVariables, async (req, res) =>
+  controller.generateRegisterOTP(req, res)
 );
 
 router.post("/verifyotp", async (req, res) => controller.verifyOTP(req, res));

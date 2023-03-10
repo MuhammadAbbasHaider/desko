@@ -58,7 +58,17 @@ a {
   border: 1.99px solid gainsboro;
 }
 
+.input_grid {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 20px;
+}
 
+.S9gUrf-YoZ4jf{
+  display: flex;
+  justify-content: center;
+}
 /* Sidebar responsive */
 
 @media (max-width: 425px) {

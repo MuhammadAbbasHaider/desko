@@ -3,6 +3,7 @@ import "./CSS/Alignment.css";
 import "./CSS/Sizing.css";
 import "./CSS/Typography.css";
 import "./CSS/App.css";
+import "./App.css";
 import { useNavigate, Route, Routes } from "react-router-dom";
 import ForgotPassword from "./Pages/Auth/ForgotPassword";
 import Register from "./Pages/Auth/Register";
