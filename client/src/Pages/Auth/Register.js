@@ -1,4 +1,9 @@
-import { LockOutlined, UserOutlined ,MailOutlined, MobileOutlined} from "@ant-design/icons";
+import {
+  LockOutlined,
+  UserOutlined,
+  MailOutlined,
+  MobileOutlined,
+} from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, Typography, Modal } from "antd";
 import axios from "axios";
 import { useState } from "react";
@@ -6,8 +11,8 @@ import { Link, useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import Cookies from "js-cookie";
 import { useAuthContext } from "../../Contexts/AuthContext";
-import 'react-phone-number-input/style.css'
-import PhoneInput from 'react-phone-number-input'
+import "react-phone-number-input/style.css";
+import PhoneInput from "react-phone-number-input";
 
 const Register = () => {
   const { setUser } = useAuthContext();
@@ -15,7 +20,7 @@ const Register = () => {
   const [credential, setCredential] = useState({});
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [value, setValue] = useState()
+  const [value, setValue] = useState();
 
   const handleChange = (e) => {
     setCredential((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -23,51 +28,57 @@ const Register = () => {
 
   const onSubmit = async (values) => {
     try {
-      setLoading(true)
+      setLoading(true);
+      if (credential.password === credential.cpassword) {
       await axios.get(
         `http://localhost:8800/api/auth/registerotp?email=${values.email}`
       );
 
       showModal();
-      setLoading(false)
+      setLoading(false);
+      } else {
+        alert("Password doesn't matches!");
+      }
     } catch (err) {
-      console.log(err);
-      setLoading(false)
+      alert(err?.response.data.msg);
+      setLoading(false);
     }
   };
 
   const onVerify = async () => {
     try {
-      setLoading(true)
-      await axios.post(
-        `http://localhost:8800/api/auth/verifyotp?code=${credential.otp}`
-      );
+      setLoading(true);
+        await axios.post(
+          `http://localhost:8800/api/auth/verifyotp?code=${credential.otp}`
+        );
 
-      const { data } = await axios.post(
-        "http://localhost:8800/api/auth/register",
-        {
-          email: credential.email,
-          password: credential.password,
-          phone: value,
-          lname: credential.lname,
-          fname: credential.fname
+        try {
+          const { data } = await axios.post(
+            "http://localhost:8800/api/auth/register",
+            {
+              email: credential.email,
+              password: credential.password,
+              phone: value,
+              lname: credential.lname,
+              fname: credential.fname,
+            }
+          );
+
+          var decoded = jwt_decode(data.authToken);
+          if (!decoded.user.isAdmin) {
+            Cookies.set("token", data.authToken);
+            setUser(decoded?.user);
+
+            navigate("/");
+            setLoading(false);
+          }
+        } catch (err) {
+          alert(err?.response.data.msg);
+          setLoading(false);
         }
-      );
-
-      var decoded = jwt_decode(data.authToken);
-      if (!decoded.user.isAdmin) {
-        Cookies.set("token", data.authToken);
-        setUser(decoded?.user);
-
-        navigate("/");
-      } else {
-        alert("Something went wrong!");
-      }
-      setLoading(false)
     } catch (err) {
-      console.log(err);
-      alert("Wrong code!");
-      setLoading(false)
+      alert(err?.response.data.msg);
+      setLoading(false);
     }
   };
 
@@ -79,9 +90,13 @@ const Register = () => {
     setIsModalOpen(false);
   };
 
+  console.log(credential);
+
   return (
-    <div className="Register bg-gray h-100vh d-flex 
-    justify-center align-center">
+    <div
+      className="Register bg-gray h-100vh d-flex 
+    justify-center align-center"
+    >
       <p
         style={{
           position: "absolute",
@@ -118,110 +133,142 @@ const Register = () => {
         >
           <h1 className="mb-3 center">Sign up</h1>
           <div className="input_grid">
-          <Form.Item className="mb-0"
-            name="fname"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Name!",
-              },
-            ]}
-          >
-            <Input
-              prefix={
-                <UserOutlined
-                  className="site-form-item-icon"
-                  style={{ fontSize: "18px" }}
-                />
-              }
-              placeholder="First Name"
-              type="text"
-              className="py-2 px-3"
-              id="fname"
-              onChange={(e) => handleChange(e)}
-            />
-          </Form.Item>
+            <Form.Item
+              className="mb-0"
+              name="fname"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Name!",
+                },
+              ]}
+            >
+              <Input
+                prefix={
+                  <UserOutlined
+                    className="site-form-item-icon"
+                    style={{ fontSize: "18px" }}
+                  />
+                }
+                placeholder="First Name"
+                type="text"
+                className="py-2 px-3"
+                id="fname"
+                onChange={(e) => handleChange(e)}
+              />
+            </Form.Item>
 
-          <Form.Item className="mb-0"
-            name="lname"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Name!",
-              },
-            ]}
-          >
-            <Input
-              prefix={
-                <UserOutlined
-                  className="site-form-item-icon"
-                  style={{ fontSize: "18px" }}
-                />
-              }
-              placeholder="Last Name"
-              type="text"
-              className="py-2 px-3"
-              id="lname"
-              onChange={(e) => handleChange(e)}
-            />
-          </Form.Item>
+            <Form.Item
+              className="mb-0"
+              name="lname"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Name!",
+                },
+              ]}
+            >
+              <Input
+                prefix={
+                  <UserOutlined
+                    className="site-form-item-icon"
+                    style={{ fontSize: "18px" }}
+                  />
+                }
+                placeholder="Last Name"
+                type="text"
+                className="py-2 px-3"
+                id="lname"
+                onChange={(e) => handleChange(e)}
+              />
+            </Form.Item>
 
-          <Form.Item className="mb-0"
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Email!",
-              },
-            ]}
-          >
-            <Input
-              prefix={
-                <MailOutlined
-                  className="site-form-item-icon"
-                  style={{ fontSize: "18px" }}
-                />
-              }
-              placeholder="Email"
-              type="email"
+            <Form.Item
+              className="mb-0"
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Email!",
+                },
+              ]}
+            >
+              <Input
+                prefix={
+                  <MailOutlined
+                    className="site-form-item-icon"
+                    style={{ fontSize: "18px" }}
+                  />
+                }
+                placeholder="Email"
+                type="email"
+                className="py-2 px-3"
+                id="email"
+                onChange={(e) => handleChange(e)}
+              />
+            </Form.Item>
+            <PhoneInput
+              placeholder="Enter phone number"
+              value={value}
+              onChange={setValue}
               className="py-2 px-3"
-              id="email"
-              onChange={(e) => handleChange(e)}
             />
-          </Form.Item>
-<PhoneInput
-      placeholder="Enter phone number"
-      value={value}
-      onChange={setValue}
-      className="py-2 px-3" />
 
-          <Form.Item className="mb-0"
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Password!",
-              },
-            ]}
-          >
-            <Input
-              prefix={
-                <LockOutlined
-                  className="site-form-item-icon"
-                  style={{ fontSize: "18px" }}
-                />
-              }
-              type="password"
-              placeholder="Choose a strong password"
-              className="py-2 px-3"
-              id="password"
-              onChange={(e) => handleChange(e)}
-            />
-          </Form.Item>
+            <Form.Item
+              className="mb-0"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Password!",
+                },
+              ]}
+            >
+              <Input
+                prefix={
+                  <LockOutlined
+                    className="site-form-item-icon"
+                    style={{ fontSize: "18px" }}
+                  />
+                }
+                type="password"
+                placeholder="Choose a strong password"
+                className="py-2 px-3"
+                id="password"
+                onChange={(e) => handleChange(e)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              className="mb-0"
+              name="cpassword"
+              rules={[
+                {
+                  required: true,
+                  message: "Please confirm password!",
+                },
+              ]}
+            >
+              <Input
+                prefix={
+                  <LockOutlined
+                    className="site-form-item-icon"
+                    style={{ fontSize: "18px" }}
+                  />
+                }
+                type="password"
+                placeholder="Confirm password"
+                className="py-2 px-3"
+                id="cpassword"
+                value={credential.cpassword}
+                onChange={(e) => handleChange(e)}
+              />
+            </Form.Item>
           </div>
           <Form.Item className="mb-0 mt-3">
             <div className="d-flex justify-between align-center w-100">
-              <Form.Item className="mb-0"
+              <Form.Item
+                className="mb-0"
                 name="remember"
                 valuePropName="checked"
                 noStyle
@@ -238,7 +285,7 @@ const Register = () => {
               className="login-form-button w-100 rounded mt-2"
               size="large"
             >
-            {loading ? "Loading..." : "Create Account"}
+              {loading ? "Loading..." : "Create Account"}
             </Button>
           </Form.Item>
         </Form>
@@ -255,7 +302,7 @@ const Register = () => {
           className="login-form-button mt-2"
           onClick={onVerify}
         >
-         {loading ? "Loading..." : "Verify!"} 
+          {loading ? "Loading..." : "Verify!"}
         </Button>
       </Modal>
     </div>

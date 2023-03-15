@@ -41,7 +41,7 @@ export async function generateRegisterOTP(req, res) {
   if (user)
     return res
       .status(500)
-      .json({ error: "User with this email already exist!" });
+      .json({ msg: "User with this email already exist!" });
 
   req.app.locals.OTP = await otpGenerator.generate(6, {
     lowerCaseAlphabets: false,
@@ -66,7 +66,7 @@ export async function verifyOTP(req, res) {
     req.app.locals.resetSession = true;
     return res.status(201).send({ msg: "Verify Successsfully!" });
   }
-  return res.status(400).send({ error: "Invalid OTP" });
+  return res.status(400).send({ msg: "Invalid OTP" });
 }
 
 export async function createResetSession(req, res) {
